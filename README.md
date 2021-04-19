@@ -1,2 +1,2 @@
-# Sprig_Security
+# Spring_Security
 practicing project for e-mail vertification
