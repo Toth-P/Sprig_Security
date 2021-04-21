@@ -1,6 +1,7 @@
 package com.example.security.service;
 
 import com.example.security.exception.exception.MissingParameterException;
+import com.example.security.exception.exception.NotValidatedUserException;
 import com.example.security.exception.exception.UserException;
 import com.example.security.model.login.UserLoginDTO;
 import com.example.security.security.Jwt.AuthenticationRequest;
@@ -24,24 +25,28 @@ public class LoginService {
   private final UserService userService;
   private final JwtUtil jwtTokenUtil;
   private final MyUserDetailsService userDetailsService;
-  DaoAuthenticationProvider daoAuthenticationProvider;
+  private final DaoAuthenticationProvider daoAuthenticationProvider;
 
   @Autowired
   public LoginService(UserService userService, JwtUtil jwtTokenUtil,
-                      MyUserDetailsService userDetailsService) {
+                      MyUserDetailsService userDetailsService,
+                      DaoAuthenticationProvider daoAuthenticationProvider) {
     this.userService = userService;
     this.jwtTokenUtil = jwtTokenUtil;
     this.userDetailsService = userDetailsService;
+    this.daoAuthenticationProvider = daoAuthenticationProvider;
   }
 
 
   public UserLoginDTO loginUser(AuthenticationRequest loginRequest) throws UserException {
 
-    //TODO isenabled + exceptionhandling
     if (loginRequest == null || isUsernameMissing(loginRequest) && isPasswordMissing(loginRequest)) {
       throw new MissingParameterException(Arrays.asList("username", "password"));
     }
     checkForMissingLoginParameters(loginRequest);
+
+    isValidated(loginRequest);
+
     final UserDetails userDetails;
     userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
     daoAuthenticationProvider.authenticate(
@@ -49,6 +54,12 @@ public class LoginService {
             loginRequest.getPassword()));
     final String jwt = jwtTokenUtil.generateToken(userDetails);
     return new UserLoginDTO(new AuthenticationResponse(jwt));
+  }
+
+  private void isValidated(AuthenticationRequest loginRequest) throws NotValidatedUserException {
+    if (!userService.loadUserByUsername(loginRequest.getUsername()).isEnabled()){
+      throw new NotValidatedUserException();
+    }
   }
 
 

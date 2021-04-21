@@ -2,6 +2,9 @@ package com.example.security.exception.handler;
 
 
 import com.example.security.exception.exception.MissingParameterException;
+import com.example.security.exception.exception.NotValidEMailException;
+import com.example.security.exception.exception.NotValidatedUserException;
+import com.example.security.exception.exception.ReservedEMailException;
 import com.example.security.exception.exception.ReservedUsernameException;
 import com.example.security.model.ErrorDTO;
 import com.example.security.model.login.UserLoginDTO;
@@ -32,12 +35,22 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(UsernameNotFoundException.class)
   public ResponseEntity<UserLoginDTO> usernameNotFoundExceptionHandling() {
-    return new ResponseEntity<>(new UserLoginDTO("No such user can be found!"), HttpStatus.UNAUTHORIZED);
+    return new ResponseEntity<>(new UserLoginDTO("No such user can be found!"), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(NotValidatedUserException.class)
+  public ResponseEntity<UserLoginDTO> notValidatedUserExceptionHandling() {
+    return new ResponseEntity<>(new UserLoginDTO("Validate your e-mail first!"), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(NotValidEMailException.class)
+  public ResponseEntity<RegisterResponseDTO> notValidEMailExceptionHandling() {
+    return new ResponseEntity<>(new RegisterResponseDTO("E-mail is not valid!"), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(BadCredentialsException.class)
   public ResponseEntity<UserLoginDTO> badCredentialsExceptionHandling() {
-    return new ResponseEntity<>(new UserLoginDTO("Wrong password!"), HttpStatus.UNAUTHORIZED);
+    return new ResponseEntity<>(new UserLoginDTO("Wrong password!"), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -46,4 +59,9 @@ public class GlobalExceptionHandler {
         HttpStatus.BAD_REQUEST);
   }
 
+  @ExceptionHandler(ReservedEMailException.class)
+  public ResponseEntity<RegisterResponseDTO> reservedEMailException(ReservedEMailException ex) {
+    return new ResponseEntity<>(new RegisterResponseDTO("Username already taken, please choose an other one."),
+        HttpStatus.CONFLICT);
+  }
 }

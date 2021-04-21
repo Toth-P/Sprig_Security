@@ -1,5 +1,7 @@
 package com.example.security.service;
 
+import com.example.security.exception.exception.ReservedEMailException;
+import com.example.security.exception.exception.UserException;
 import com.example.security.model.ConfirmationToken;
 import com.example.security.model.user.User;
 import com.example.security.repository.UserRepository;
@@ -20,17 +22,12 @@ public class SignUpService {
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
   private final ConfirmationTokenService confirmationTokenService;
 
-  public String signUpUser(User user) {
+  public String signUpUser(User user) throws UserException {
     boolean userExists = userRepository
         .findByEmail(user.getEmail())
         .isPresent();
 
-    if (userExists) {
-      // TODO check of attributes are the same and
-      // TODO if email not confirmed send confirmation email.
-
-      throw new IllegalStateException("email already taken");
-    }
+    if (userExists) throw new ReservedEMailException();
 
     String encodedPassword = bCryptPasswordEncoder
         .encode(user.getPassword());

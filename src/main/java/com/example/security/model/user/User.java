@@ -26,12 +26,9 @@ public class User implements UserDetails {
 
 
   @Id
-  @GeneratedValue(
-      strategy = GenerationType.SEQUENCE,
-      generator = "student_sequence"
-  )
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
-  private String userName;
+  private String username;
   private String email;
   private String password;
   @Enumerated(EnumType.STRING)
@@ -39,11 +36,11 @@ public class User implements UserDetails {
   private Boolean locked = false;
   private Boolean enabled = false;
 
-  public User(String userName,
+  public User(String username,
               String email,
               String password,
               UserRole userRole) {
-    this.userName = userName;
+    this.username = username;
     this.email = email;
     this.password = password;
     this.userRole = userRole;
@@ -63,7 +60,7 @@ public class User implements UserDetails {
 
   @Override
   public String getUsername() {
-    return userName;
+    return username;
   }
 
   @Override

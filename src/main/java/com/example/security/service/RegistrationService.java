@@ -3,6 +3,9 @@ package com.example.security.service;
 
 import com.example.security.email.EmailSender;
 import com.example.security.exception.exception.MissingParameterException;
+import com.example.security.exception.exception.NotValidEMailException;
+import com.example.security.exception.exception.ReservedEMailException;
+import com.example.security.exception.exception.UserException;
 import com.example.security.model.ConfirmationToken;
 import com.example.security.model.register.RegistrationRequestDTO;
 import com.example.security.model.user.User;
@@ -26,16 +29,14 @@ public class RegistrationService {
   private final ConfirmationTokenService confirmationTokenService;
   private final EmailSender emailSender;
 
-  public String register(RegistrationRequestDTO request) throws MissingParameterException {
+  public String register(RegistrationRequestDTO request)
+      throws UserException {
     checkForMissingRegisterParameters(request);
 
     boolean isValidEmail = emailValidator.
         test(request.getEmail());
 
-    if (!isValidEmail) {
-      //TODO EXCEPTION HANDLIND
-      throw new IllegalStateException("email not valid");
-    }
+    if (!isValidEmail) throw new NotValidEMailException();
 
     String token = signUpService.signUpUser(
         new User(
